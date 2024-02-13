@@ -4,9 +4,9 @@ Here, we store all the stages of obtaining the data, processing and training a m
 
 # Files Navigation
 ├─ _corpus crawling_ contains files for crawling audio files of the corpus<br>
-    ├─ **crawling.py** represents [Semitisches Tonarchiv webpage](https://semarch.ub.uni-heidelberg.de/#archive) crawling process<br>
-    ├─ **audio_links.json** is a result of the latter code<br>
-    ├─ **load_match.py** loads audio files and sorts them in two groups, whether they have a corresponding text or not<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├─ **crawling.py** represents [Semitisches Tonarchiv webpage](https://semarch.ub.uni-heidelberg.de/#archive) crawling process<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├─ **audio_links.json** is a result of the latter code<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├─ **load_match.py** loads audio files and sorts them in two groups, whether they have a corresponding text or not<br>
 ├─ _primary processing_ contains files of the first processing that goes before model learning preprocessing<br>
     ├─ **audio_processing.py** rewrites audio in .wav format<br>
     ├─ **text_processing.py** unifies text format<br>
