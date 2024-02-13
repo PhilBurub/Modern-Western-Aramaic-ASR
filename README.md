@@ -3,7 +3,7 @@ This repository contains files of project *Deep Learning Model for Speech Recogn
 Here, we store all the stages of obtaining the data, processing and training a model.
 
 # Files Navigation
-<div background-color: brown;>
+<div style="background-color:powderblue;">
 ├─ _corpus crawling_ contains files for crawling audio files of the corpus
     ├─ **crawling.py** represents [Semitisches Tonarchiv webpage](https://semarch.ub.uni-heidelberg.de/#archive) crawling process
     ├─ **audio_links.json** is a result of the latter code
