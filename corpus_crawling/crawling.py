@@ -6,8 +6,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 import time
 import json
-
-PAGE = 'https://semarch.ub.uni-heidelberg.de/#filter:2:[%22Aram%C3%A4isch%22,%22Neuwestaram%C3%A4isch%22]'
+import argparse
+from pathlib import Path
 
 
 def crawl_page(page: str, sleep_time: int = 10) -> Dict[str, str]:
@@ -59,7 +59,29 @@ def process_object(obj: WebElement, sleep_time: int = 8) -> Dict[str, str]:
     return {name: link}
 
 
+def main(page_url: str,
+         out_file: Path):
+    links_dict = crawl_page(page_url)
+    json.dump(links_dict,
+              out_file.open(mode='w', encoding='utf-8'),
+              ensure_ascii=False,
+              indent='\t')
+
+
 if __name__ == '__main__':
-    links_dict = crawl_page(PAGE)
-    with open('audio_links.json', 'w', encoding='utf-8') as f:
-        json.dump(links_dict, f, ensure_ascii=False, indent='\t')
+    parser = argparse.ArgumentParser('Audio Links Crawler')
+    parser.add_argument('-u', '--url', help='URL link to audio page')
+    parser.add_argument('-o', '--out', help='Path to the directory to write target json file')
+
+    arguments = parser.parse_args()
+    # page_url = ''
+    page_url = arguments.url
+    out_file = Path(arguments.out).joinpath('audio_links.json')
+    main(page_url, out_file)
+
+"""
+-u
+"https://semarch.ub.uni-heidelberg.de/#filter:2:[%22Aram%C3%A4isch%22,%22Neuwestaram%C3%A4isch%22]"
+-o
+"."
+"""

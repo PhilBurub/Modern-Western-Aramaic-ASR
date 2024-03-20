@@ -1,3 +1,4 @@
+"""Functions to access the GoogleDrive and download files"""
 from google.oauth2 import service_account
 from googleapiclient.http import MediaIoBaseDownload
 from googleapiclient.discovery import build, Resource
@@ -5,7 +6,7 @@ import io
 from collections import defaultdict
 import pandas as pd
 from typing import Tuple, List
-from path import Path
+from pathlib import Path
 
 GOOGLEAPI_SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 CREDENTIALS = service_account.Credentials.from_service_account_file(

@@ -1,20 +1,13 @@
 """Process of downloading audio files and matching them with the texts"""
-
-import os
 import re
-from path import Path
-from typing import List, Union
+from pathlib import Path
+from typing import List
+import argparse
 import warnings
 import wget
 from tqdm import tqdm
 import json
 from primary_processing.text_processing import preprocess_corpus
-
-CORPUS_PATH = Path('./corpus_maalula/')
-TEXT_OUT_PATH = Path('./texts/')
-AUDIO_LINKS_JSON = Path('./audio_links.json')
-MATCHED_AUDIO_PATH = Path('./audio/')
-UNMATCHED_AUDIO_PATH = Path('./unmathced audio/')
 
 
 def rewrite_texts(texts_path: Path, out_path: Path) -> set:
@@ -25,18 +18,16 @@ def rewrite_texts(texts_path: Path, out_path: Path) -> set:
     :return: set of file names
     """
     texts_set = set()
-    for file in texts_path.iterdir():
-        file_path, file_extension = file.splitext()
-        file_name = file_path.splitall()[-1]
-        name = re.search(r'(?<=[A-ZḤČḲʕṢŠḲṬŽḎ][A-ZḤČḲʕṢŠḲṬŽḎ] )[\w\-, ]+\Z', file_name)
+    for text_file in texts_path.iterdir():
+        name = re.search(r'(?<=[A-ZḤČḲʕṢŠḲṬŽḎ][A-ZḤČḲʕṢŠḲṬŽḎ] )[\w\-, ]+\Z', text_file.stem)
 
         if name is not None:
             new_name = name.group()
-            text = file.open(encoding='utf-8').read()
+            text = text_file.read_text(encoding='utf-8')
             out_path.joinpath(new_name + '.txt').write_text(preprocess_corpus(text))
             texts_set.update([name.group()])
         else:
-            warnings.warn(f'We did not find an appropriate name for file {file_name + "." + file_extension}')
+            warnings.warn(f'We did not find an appropriate name for file {text_file.name}')
     return texts_set
 
 
@@ -71,13 +62,46 @@ def match_and_download(audio_links_json: Path,
     return all_files
 
 
-if __name__ == '__main__':
-    if not TEXT_OUT_PATH.exists():
-        TEXT_OUT_PATH.mkdir()
-    if not MATCHED_AUDIO_PATH.exists():
-        MATCHED_AUDIO_PATH.mkdir()
-    if not UNMATCHED_AUDIO_PATH.exists():
-        UNMATCHED_AUDIO_PATH.mkdir()
+def main(corpus_path: Path,
+         audio_links_json: Path,
+         text_out_path: Path,
+         matched_audio_path: Path,
+         unmatched_audio_path: Path):
+    """
+    Function converts files from the corpus to the uniform format, downloads audio files and sorts them into matched
+    und unmatched ones
+    :param corpus_path: path to the corpus of texts
+    :param audio_links_json: path to the json file containing links to audio files
+    :param text_out_path: path to the target text directory
+    :param matched_audio_path: path to the target directory for audio files that have corresponding texts
+    :param unmatched_audio_path: path to the target directory for audio files that do not have corresponding texts
+    """
+    if not text_out_path.exists():
+        text_out_path.mkdir()
+    if not matched_audio_path.exists():
+        matched_audio_path.mkdir()
+    if not unmatched_audio_path.exists():
+        unmatched_audio_path.mkdir()
 
-    texts_set = rewrite_texts(CORPUS_PATH, TEXT_OUT_PATH)
-    match_and_download(AUDIO_LINKS_JSON, texts_set, MATCHED_AUDIO_PATH, UNMATCHED_AUDIO_PATH)
+    texts_set = rewrite_texts(corpus_path, text_out_path)
+    match_and_download(audio_links_json, texts_set, matched_audio_path, unmatched_audio_path)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser('Aramaic Corpora Files Match')
+    parser.add_argument('-c', '--corpus', help='Path to the corpus texts')
+    parser.add_argument('-a', '--audio', help='Path to the json file with links to audio files')
+    parser.add_argument('-t', '--texts', help='Target path to processed texts', required=False)
+    parser.add_argument('-m', '--matched', help='Target path to matched audio files', required=False)
+    parser.add_argument('-u', '--unmatched', help='Target path to unmatched audio files', required=False)
+
+    arguments = parser.parse_args()
+    corpus_path = Path(arguments.corpus)
+    audio_links_json = Path(arguments.audio)
+    text_out_path = Path(arguments.texts) if arguments.texts else corpus_path.parent.joinpath('preprocessed_texts')
+    matched_audio_path = Path(arguments.matched) if arguments.matched else \
+        audio_links_json.parent.joinpath('matched_audio')
+    unmatched_audio_path = Path(arguments.unmatched) if arguments.unmatched else \
+        audio_links_json.parent.joinpath('unmatched_audio')
+
+    main(corpus_path, audio_links_json, text_out_path, matched_audio_path, unmatched_audio_path)

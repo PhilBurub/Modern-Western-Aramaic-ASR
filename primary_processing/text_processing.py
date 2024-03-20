@@ -1,8 +1,10 @@
 """A set of functions that preprocess initial texts extracted from different sources"""
-
 import re
-from typing import List, Tuple, Callable
-from primary_processing.text_replace_pairs import *
+from typing import List, Callable
+import json
+from pathlib import Path
+
+REPLACES = json.load(Path('text_replace_pairs.json').open(encoding='utf-8'))
 
 
 def validate_charset(preprocess: Callable[[str], str]) -> Callable[[str], str]:
@@ -25,7 +27,7 @@ def validate_charset(preprocess: Callable[[str], str]) -> Callable[[str], str]:
     return validate
 
 
-def make_replaces(text: str, replaces: List[Tuple[str, str]]) -> str:
+def make_replaces(text: str, replaces: List[List[str, str]]) -> str:
     """
     Function runs a chain of replacements for a string
     :param text: string input
@@ -62,7 +64,7 @@ def preprocess_corpus(text: str) -> str:
     output_text = preprocess_base(text)
     output_text = re.sub(fr'(?P<const>[{consonants}])(?=\1[^{vowels}])', '', output_text)
     output_text = re.sub(fr'(?P<const>[{consonants}])(?=\1$)', '', output_text)
-    output_text = make_replaces(output_text, CORPUS_REPLACES)
+    output_text = make_replaces(output_text, REPLACES['corpus'])
     return re.sub(r'(?<!\w)w(?!\w)', 'u', output_text)
 
 
@@ -74,7 +76,7 @@ def preprocess_church_militant(text: str) -> str:
     :return: output text
     """
     output_text = preprocess_base(text)
-    output_text = make_replaces(output_text, CHURCH_MILITANT_REPLACES)
+    output_text = make_replaces(output_text, REPLACES['church molitant'])
     return re.sub(r'(?<!\w)w(?!\w)', 'u', output_text)
 
 
@@ -86,7 +88,7 @@ def preprocess_lullaby(text: str) -> str:
     :return: output text
     """
     output_text = preprocess_base(text)
-    return make_replaces(output_text, LULLABY_REPLACES)
+    return make_replaces(output_text, REPLACES['lullaby'])
 
 
 @validate_charset
@@ -97,7 +99,7 @@ def preprocess_war_account(text: str) -> str:
     :return: output text
     """
     output_text = preprocess_base(text)
-    return make_replaces(output_text, WAR_ACCOUNT_REPLACES)
+    return make_replaces(output_text, REPLACES['war account'])
 
 
 @validate_charset
@@ -108,7 +110,7 @@ def preprocess_war_description(text: str) -> str:
     :return: output text
     """
     output_text = preprocess_base(text)
-    return make_replaces(output_text, WAR_DESCRIPTION_REPLACES)
+    return make_replaces(output_text, REPLACES['war description'])
 
 
 @validate_charset
@@ -119,7 +121,7 @@ def preprocess_maaloulians_in_palestine(text: str) -> str:
     :return: output text
     """
     output_text = preprocess_base(text)
-    output_text = make_replaces(output_text, MAALOULIANS_IN_PALESTINE_REPLACES)
+    output_text = make_replaces(output_text, REPLACES['maaloulians in palestine'])
     return re.sub(r'(?<!\w)w(?!\w)', 'u', output_text)
 
 
@@ -131,4 +133,4 @@ def preprocess_old_words(text: str) -> str:
     :return: output text
     """
     output_text = preprocess_base(text)
-    return make_replaces(output_text, OLD_WORDS_REPLACES)
+    return make_replaces(output_text, REPLACES['old words'])

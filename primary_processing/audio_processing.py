@@ -1,27 +1,25 @@
 """A set of functions that help preprocess initial audio files"""
-
 from moviepy.editor import VideoFileClip
 import warnings
 from typing import Union
-from path import Path
+from pathlib import Path
 import librosa
 import soundfile as sf
 
 
-def get_new_audiofile_path(current_path: Path) -> Path:
+def get_new_path(current_path: Path) -> Path:
     """
-    Returns unique path for .wav file
+    Returns unique path
     :param current_path: initial path
     :return: unique path based on the initial one
     """
-    output_path = current_path
+    output_stem = current_path.stem
     idx = 0
-    while (output_path + '.wav').exists():
-        warnings.warn(f"File {output_path + '.wav'} already exists")
-        output_path = current_path + '_' + str(idx)
+    while current_path.with_stem(output_stem).exists():
+        warnings.warn(f"File {current_path.with_stem(output_stem)} already exists")
+        output_stem = current_path.stem + '_' + str(idx)
         idx += 1
-    output_path += '.wav'
-    return output_path
+    return current_path.with_stem(output_stem)
 
 
 def video2audio(video_path: Path,
@@ -32,11 +30,10 @@ def video2audio(video_path: Path,
     :param audio_path: directory where new audiofile will be saved
     :return: path where new audiofile is saved
     """
-    file_path, _ = video_path.splitext()
-    file_path_splitted = file_path.splitall()
-    designed_path = audio_path.joinpath(file_path_splitted[-1]) if \
-        audio_path is not None else file_path
-    output_path = get_new_audiofile_path(designed_path)
+
+    designed_path = audio_path.joinpath(video_path.stem + '.wav') if \
+        audio_path is not None else video_path.with_suffix('.wav')
+    output_path = get_new_path(designed_path)
 
     video = VideoFileClip(video_path)
     audio = video.audio
@@ -53,11 +50,9 @@ def audio2wav(input_path: Path,
     :param destination_path: directory where new audiofile will be saved
     :return: path where new audiofile is saved
     """
-    file_path, _ = input_path.splitext()
-    file_path_splitted = file_path.splitall()
-    designed_path = destination_path.joinpath(file_path_splitted[-1]) if \
-        destination_path is not None else file_path
-    output_path = get_new_audiofile_path(designed_path)
+    designed_path = destination_path.joinpath(input_path.stem + '.wav') if \
+        destination_path is not None else input_path.with_suffix('.wav')
+    output_path = get_new_path(designed_path)
     audio, sr = librosa.load(input_path, sr=None)
     sf.write(output_path, audio, sr)
     return output_path
