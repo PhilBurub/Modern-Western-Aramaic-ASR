@@ -19,7 +19,7 @@ def validate_charset(preprocess: Callable[[str], str]) -> Callable[[str], str]:
         :return: output text
         """
         output_text = preprocess(*args, **kwargs)
-        character_set = set(' aābcčdḏḍḏ̣eēəfgġhḥiīklmnoōprsšṣtṯṭuūwxyzžẓʕʔ')
+        character_set = set(' aābcčdḏ̣ḓeēəfgġhḥiīklmnoōprsšṣtṯṭuūwxyzžẓʕʔ')
         if set(output_text).difference(character_set) != set():
             raise Warning('After preprocessing, the text still contains characters that are not present in the set')
         return output_text
