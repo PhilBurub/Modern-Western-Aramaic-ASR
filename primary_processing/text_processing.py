@@ -1,10 +1,8 @@
 """A set of functions that preprocess initial texts extracted from different sources"""
 import re
 from typing import List, Callable
-import json
-from pathlib import Path
-
-REPLACES = json.load(Path('text_replace_pairs.json').open(encoding='utf-8'))
+from warnings import warn
+from .text_replace_pairs import REPLACES
 
 
 def validate_charset(preprocess: Callable[[str], str]) -> Callable[[str], str]:
@@ -19,15 +17,16 @@ def validate_charset(preprocess: Callable[[str], str]) -> Callable[[str], str]:
         :return: output text
         """
         output_text = preprocess(*args, **kwargs)
-        character_set = set(' aābcčdḏ̣ḓeēəfgġhḥiīklmnoōprsšṣtṯṭuūwxyzžẓʕʔ')
+        character_set = set(' aābcčdḏḍḓeēəfgġhḥiīklmnoōprsšṣtṯṭuūwxyzžẓʕʔ')
         if set(output_text).difference(character_set) != set():
-            raise Warning('After preprocessing, the text still contains characters that are not present in the set')
+            warn('After preprocessing, the text still contains characters that are not present in the set: ' +
+                 ', '.join(set(output_text).difference(character_set)))
         return output_text
 
     return validate
 
 
-def make_replaces(text: str, replaces: List[List[str, str]]) -> str:
+def make_replaces(text: str, replaces: List[List[str]]) -> str:
     """
     Function runs a chain of replacements for a string
     :param text: string input
@@ -46,7 +45,7 @@ def preprocess_base(text: str) -> str:
     :param text: input text
     :return: output text
     """
-    words_only = ' '.join(re.findall('\w+', text.lower()))
+    words_only = ' '.join(re.findall('[̣\ẉ]+', text.lower()))
     new_text = re.sub('[\d_]+', ' ', words_only)
     new_text = re.sub('\s+', ' ', new_text)
     return re.sub(r'(\A | \Z)', '', new_text)
@@ -76,7 +75,7 @@ def preprocess_church_militant(text: str) -> str:
     :return: output text
     """
     output_text = preprocess_base(text)
-    output_text = make_replaces(output_text, REPLACES['church molitant'])
+    output_text = make_replaces(output_text, REPLACES['church militant'])
     return re.sub(r'(?<!\w)w(?!\w)', 'u', output_text)
 
 

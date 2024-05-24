@@ -18,13 +18,20 @@ def rewrite_texts(texts_path: Path, out_path: Path) -> set:
     :return: set of file names
     """
     texts_set = set()
-    for text_file in texts_path.iterdir():
+    for text_file in texts_path.rglob('*.txt'):
         name = re.search(r'(?<=[A-ZḤČḲʕṢŠḲṬŽḎ][A-ZḤČḲʕṢŠḲṬŽḎ] )[\w\-, ]+\Z', text_file.stem)
 
         if name is not None:
             new_name = name.group()
             text = text_file.read_text(encoding='utf-8')
-            out_path.joinpath(new_name + '.txt').write_text(preprocess_corpus(text))
+
+            i = 0
+            new_file = out_path.joinpath(new_name + '.txt')
+            while new_file.exists():
+                new_file = new_file.with_stem(new_name + f' ({i})')
+                i += 1
+
+            new_file.write_text(preprocess_corpus(text), encoding='utf-8')
             texts_set.update([name.group()])
         else:
             warnings.warn(f'We did not find an appropriate name for file {text_file.name}')
@@ -76,12 +83,9 @@ def main(corpus_path: Path,
     :param matched_audio_path: path to the target directory for audio files that have corresponding texts
     :param unmatched_audio_path: path to the target directory for audio files that do not have corresponding texts
     """
-    if not text_out_path.exists():
-        text_out_path.mkdir()
-    if not matched_audio_path.exists():
-        matched_audio_path.mkdir()
-    if not unmatched_audio_path.exists():
-        unmatched_audio_path.mkdir()
+    text_out_path.mkdir(parents=True, exist_ok=True)
+    matched_audio_path.mkdir(parents=True, exist_ok=True)
+    unmatched_audio_path.mkdir(parents=True, exist_ok=True)
 
     texts_set = rewrite_texts(corpus_path, text_out_path)
     match_and_download(audio_links_json, texts_set, matched_audio_path, unmatched_audio_path)

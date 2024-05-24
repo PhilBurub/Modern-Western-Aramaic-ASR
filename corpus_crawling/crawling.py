@@ -74,7 +74,6 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--out', help='Path to the directory to write target json file')
 
     arguments = parser.parse_args()
-    # page_url = ''
     page_url = arguments.url
     out_file = Path(arguments.out).joinpath('audio_links.json')
     main(page_url, out_file)
