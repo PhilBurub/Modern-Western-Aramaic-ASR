@@ -4,7 +4,7 @@ Here, we store all the stages of obtaining the data, processing and training a m
 
 # Files Navigation
 ├─ _**app**_ contains CLI app to run the model<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ `main.py` command line interface to access the model locally<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ [`main.py`](app/main.py) command line interface to access the model locally<br>
 ├─ _**corpus_crawling**_ contains files for crawling audio files of the corpus<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ `crawling.py` represents [Semitisches Tonarchiv webpage](https://semarch.ub.uni-heidelberg.de/#archive) crawling process<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ `audio_links.json` is a result of the latter code<br>
