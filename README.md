@@ -39,4 +39,4 @@ Here, we store all the stages of obtaining the data, processing and training a m
 
 # About me
 My name is Philipp Burlakov, in 2024 I graduated from HSE University Moscow Campus, Computational Linguistics BA.<br>
-[My CV](https://drive.google.com/file/d/1ArmG8yozeX9hSdYGy-bUbW0L4vygBi_t/view?usp=sharing)
+[My CV](thesis_content/CV.pdf)
